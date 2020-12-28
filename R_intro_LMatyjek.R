@@ -18,7 +18,7 @@
 ################################################################################
 
 # Settings
-rm(list=ls()) # This cleans the working directory
+rm(list=ls()) # This cleans the environment
 
 ############################### WORKING DIRECTORY ############################## 
 
@@ -32,7 +32,7 @@ getwd()
 ################################# LOADING FILE #################################
 
 # Load from CSV:
-read.csv2('./iris.csv', header = T, sep = ',')
+read.csv2('./iris.csv', header = TRUE, sep = ',')
 
 # Load from CSV and ascribe to object "dane":
 dane <- read.csv2('./iris.csv', header = T, sep = ',')
@@ -48,7 +48,7 @@ colnames(dane) # see the names of the columns
 rownames(dane) # see row names; often automatic in reading CSV in R; can be ignored for now
 head(dane,5) # see the first 5 rows; replace 5 with any other number
 tail(dane,5) # see the last 5 rows
-View(dane) # see a table in a new tab; also done by simply clicking on the object in the global environment
+#View(dane) # see a table in a new tab; also done by simply clicking on the object in the global environment
 
 ############################ MANIPULATING DATA FRAME ###########################
 
@@ -79,8 +79,8 @@ dane$Sepal.Length[dane$Species == 'setosa'] # show sepal length for all setosas
 # Remove a column
 colnames(dane)
 dane$X <- NULL
+dane$trojki <- 3
 colnames(dane)
-
 
 #################################### CLASSES  ##################################
 
@@ -108,7 +108,7 @@ class(dane$Sepal.Length) # check is it's numeric now
     # (...)
     
     # EXTRA: a faster way to do so is:
-    # dane[,c(1:4)] <- lapply(dane[,c(1:4)],as.numeric)
+     dane[,c(1:4)] <- lapply(dane[,c(1:4)],as.numeric)
 
 # See Species as characters, numeric, and factors
 as.character(dane$Species)
@@ -163,7 +163,24 @@ sd(dane$Sepal.Length)/sqrt(length(dane$Sepal.Length)) # standard error is just t
 library(psych) # load the package
 describe(dane$Sepal.Length)
 
-# Different stats across groups
+# Changing the names of factors
+unique(dane$Species)
+dane$Species <- as.character(dane$Species)
+dane$Species[dane$Species == "setosa"] <- "1"
+dane$Species[dane$Species == "versicolor"] <- "2"
+dane$Species[dane$Species == "virginica"] <- "3"
+unique(dane$Species)
+class(dane$Species)
+dane$Species <- as.factor(dane$Species)
+    # Let's change them back to full names
+dane$Species <- as.character(dane$Species)
+dane$Species[dane$Species == "1"] <- "setosa"
+dane$Species[dane$Species == "2"] <- "versicolor"
+dane$Species[dane$Species == "3"] <- "virginica"
+unique(dane$Species)
+class(dane$Species)
+dane$Species <- as.factor(dane$Species)
+
 library(dplyr)
 dane %>%
   group_by(Species) %>%
@@ -209,7 +226,7 @@ ggplot(data = dane, aes(x = Sepal.Length, y = Sepal.Width, colour = Species)) +
 
 ggplot(data = dane, aes(x = Sepal.Length, y = Sepal.Width, colour = Species)) +
   geom_smooth() +
-  theme_minimal()
+  theme_classic()
 
 ggplot(data = dane, aes(x = Sepal.Length, y = Sepal.Width, colour = Species)) +
   geom_smooth() +
@@ -330,7 +347,7 @@ t.test(dane$Petal.Length[dane$Species == 'setosa'],
 # anova
 aov(formula = Petal.Length ~ Species, data = dane)
 
-my_anova <- aov(Petal.Length ~ Species, data = dane)
+my_anova <- aov(formula = Petal.Length ~ Species, data = dane)
 summary(my_anova)
 
 options(scipen=999) # remove scientific notation
